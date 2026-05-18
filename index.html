@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limbus-Company-LCB-PDA</title>
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        :root {
+            --bg-dark: #060608;
+            --panel-bg: #111115;
+            --panel-border: #22222a;
+            --lc-red: #bf1919;
+            --lc-amber: #d97706;
+            --text-main: #d1d1d6;
+            --text-muted: #6b7280;
+            --glow: rgba(191, 25, 25, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 10px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .pda-device {
+            width: 100%;
+            max-width: 1024px;
+            height: 95vh;
+            background-color: var(--panel-bg);
+            border: 4px solid #2d2d35;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.9);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        @media screen and (max-width: 900px) and (orientation: portrait) {
+            .pda-device::after {
+                content: "ПОЖАЛУЙСТА, ПЕРЕВЕРНИТЕ УСТРОЙСТВО В ГОРИЗОНТАЛЬНЫЙ РЕЖИМ RE-ORIENTING CHASSIS...";
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: #0d0d11;
+                color: var(--lc-amber);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 30px;
+                font-size: 18px;
+                z-index: 9999;
+                border: 2px dashed var(--lc-red);
+            }
+        }
+
+        @media screen and (max-width: 900px) and (orientation: landscape) {
+            body { padding: 2px; }
+            .pda-device { height: 100vh; border-radius: 0; border-width: 2px; }
+            .pda-sidebar { width: 140px !important; padding: 8px 5px !important; }
+            .menu-btn { padding: 8px !important; font-size: 10px !important; }
+            .pda-header { padding: 5px 10px !important; font-size: 10px !important; }
+            .char-card { width: 100px !important; gap: 8px; }
+            .char-img-container { height: 100px !important; }
+            .char-info h4 { font-size: 10px !important; }
+            .pda-content { padding: 10px !important; }
+        }
+
+        .screen-login {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            padding: 20px;
+            background: radial-gradient(circle, #15151c 0%, #060608 100%);
+        }
+
+        .login-box {
+            background: #0d0d11;
+            border: 1px solid var(--panel-border);
+            padding: 30px;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .lc-logo {
+            color: var(--lc-red);
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px var(--glow);
+        }
+
+        .system-status { font-size: 11px; color: var(--text-muted); margin-bottom: 25px; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; color: var(--lc-amber); margin-bottom: 5px; text-transform: uppercase; }
+        .input-group input { width: 100%; background: #16161f; border: 1px solid var(--panel-border); padding: 12px; color: #fff; font-size: 14px; border-radius: 4px; outline: none; }
+
+        .btn-login { width: 100%; background: var(--lc-red); color: #fff; border: none; padding: 12px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; }
+        .terminal-loader { display: none; text-align: left; font-size: 13px; color: #4ade80; width: 100%; max-width: 500px; height: 180px; overflow-y: auto; background: #000; padding: 15px; border: 1px solid #16a34a; margin-top: 10px; }
+
+        .screen-main { display: none; flex-direction: column; height: 100%; }
+        .pda-header { background-color: #0d0d11; border-bottom: 1px solid var(--panel-border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .pda-header .header-left { display: flex; flex-direction: column; gap: 2px; }
+        .pda-header .user-info { color: var(--lc-amber); }
+        .pda-header .header-right-player { display: flex; align-items: center; gap: 12px; background: #14141a; padding: 6px 12px; border: 1px solid var(--panel-border); border-radius: 4px; }
+
+        .audio-ctrl-btn { background: var(--lc-red); color: #fff; border: none; padding: 4px 10px; font-size: 10px; font-weight: bold; cursor: pointer; border-radius: 3px; text-transform: uppercase; }
+        .audio-ctrl-btn:hover { background: #a11515; }
+
+        .pda-body { display: flex; flex-grow: 1; overflow: hidden; }
+        .pda-sidebar { width: 220px; background-color: #0d0d11; border-right: 1px solid var(--panel-border); display: flex; flex-direction: column; padding: 15px 10px; gap: 8px; flex-shrink: 0; }
+        .menu-btn { background: transparent; border: 1px solid transparent; color: var(--text-main); padding: 12px; text-align: left; cursor: pointer; border-radius: 4px; font-size: 13px; }
+        .menu-btn:hover, .menu-btn.active { background-color: #1a1a24; border-color: var(--lc-red); color: #fff; }
+
+        .pda-content { flex-grow: 1; padding: 20px 30px; overflow-y: auto; background-color: #0f0f13; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .archive-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+
+        .char-card { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 6px; overflow: hidden; width: 150px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+        .char-card:hover { transform: translateY(-2px); border-color: var(--lc-red); }
+        .char-img-container { width: 100%; height: 150px; background-color: #000; overflow: hidden; }
+        .char-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .char-info { padding: 8px; font-size: 12px; text-align: center; border-top: 1px solid var(--panel-border); background: #14141a; }
+        .char-info h4 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .char-info span { font-size: 10px; color: var(--text-muted); }
+
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-window { background: #0d0d12; border: 2px solid var(--lc-red); border-radius: 8px; width: 100%; max-width: 600px; display: flex; flex-direction: row; overflow: hidden; box-shadow: 0 0 25px rgba(191, 25, 25, 0.4); }
+        .modal-img { width: 200px; background: #000; border-right: 1px solid var(--panel-border); }
+        .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-details { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; position: relative; overflow-y: auto; max-height: 350px; }
+        .modal-details h3 { color: #fff; margin-bottom: 5px; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; }
+        .modal-details .subtitle { color: var(--lc-amber); font-size: 11px; margin-bottom: 15px; text-transform: uppercase; }
+        .modal-details p { font-size: 13px; line-height: 1.5; color: var(--text-main); text-align: justify; }
+        .btn-close-modal { margin-top: auto; background: #22222a; color: #fff; border: 1px solid var(--panel-border); padding: 8px; cursor: pointer; text-align: center; border-radius: 4px; font-size: 11px; text-transform: uppercase; }
+        .btn-close-modal:hover { background: var(--lc-red); }
+
+        .story-section {
+            background: #0d0d11;
+            border-left: 3px solid var(--lc-red); 
+            padding: 20px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 6px 6px 0;
+        }
+        .story-section h3 { 
+            color: var(--lc-red); 
+            margin-bottom: 10px; 
+            font-size: 1.1rem; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(191, 25, 25, 0.4);
+            border-bottom: 1px solid #22222a;
+            padding-bottom: 8px;
+        }
+        .story-section .report-header {
+            color: var(--lc-amber);
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .story-section p { 
+            font-size: 0.9rem; 
+            line-height: 1.6; 
+            margin-bottom: 12px; 
+            text-align: justify; 
+            color: #d1d1d6;
+            font-family: Arial, sans-serif;
+        }
+        .story-section p:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bgMusic" loop src="01. In Hell We Live, Lament.mp3" preload="auto"></audio>
+
+<div class="pda-device">
+
+    <div class="screen-login" id="screenLogin">
+        <div class="login-box" id="loginBox">
+            <div class="lc-logo">LIMBUS COMPANY</div>
+            <div class="system-status">ПОДКЛЮЧЕНИЕ К СЕРВЕРУ LC_GLOBAL...</div>
+            <div class="input-group">
+                <label>Идентификатор Ключа (ID)</label>
+                <input type="text" id="managerId" placeholder="Введите LC-DANTE-XXXX" value="LC-DANTE-7777">
+            </div>
+            <button class="btn-login" onclick="startSystemLoading()">Инициализировать КПК</button>
+        </div>
+        <div class="terminal-loader" id="terminalLoader"></div>
+    </div>
+
+    <div class="screen-main" id="screenMain">
+        <div class="pda-header">
+            <div class="header-left">
+                <div class="user-info">Сотрудник: <span id="displayId">DANTE</span> [ОТДЕЛ: МЕНЕДЖМЕНТ]</div>
+                <div style="color: var(--text-muted); font-size: 10px;">LCB_OS_V4.17 // СИНХРОНИЗАЦИЯ СТАБИЛЬНА</div>
+            </div>
+
+            <div class="header-right-player">
+                <div style="display: flex; flex-direction: column; gap: 2px; text-align: right; margin-right: 5px;">
+                    <span style="font-size: 10px; color: var(--lc-amber); font-weight: bold;">MILI STREAM:</span>
+                    <span id="musicStatus" style="font-size: 9px; color: var(--text-muted);">ВЫКЛЮЧЕН</span>
+                </div>
+                <button class="audio-ctrl-btn" onclick="toggleMusic()">PLAY / PAUSE</button>
+            </div>
+        </div>
+
+        <div class="pda-body">
+            <div class="pda-sidebar">
+                <button class="menu-btn active" onclick="switchTab(event, 'archive')">Base Грешников</button>
+                <button class="menu-btn" onclick="switchTab(event, 'antagonists')">Угрозы (Антагонисты)</button>
+                <button class="menu-btn" onclick="switchTab(event, 'story-log')">Логи Сюжета (Канто I-IX)</button>
+            </div>
+
+            <div class="pda-content">
+                <div id="archive" class="tab-content active">
+                    <h3 style="margin-bottom: 15px; color: #fff;">ЛИЧНЫЕ ДЕЛА ГРЕШНИКОВ</h3>
+                    <div class="archive-grid">
+                        <div class="char-card" onclick="showCharacter('И Санг', 'Грешник №01', 'Бывший главный исследователь Лиги Девяти Литераторов. Гениальный изобретатель технологии Зеркал.', 'https://i.postimg.cc/d3d4CG4J/IMG-9302.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/d3d4CG4J/IMG-9302.webp"></div>
+                            <div class="char-info"><h4>И Санг</h4><span>Грешник №01</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Фауст', 'Грешник №02', 'Создательница автобуса Мефистофель. Считает себя величайшим гением Города, способным получить ответ на любой вопрос.', 'https://i.postimg.cc/6qRYZCYt/IMG-9303.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/6qRYZCYt/IMG-9303.webp"></div>
+                            <div class="char-info"><h4>Фауст</h4><span>Грешник №02</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Дон Кихот', 'Грешник №03', 'Фанатичная поклонница Фиксеров, зацикленная на идее справедливости. На самом деле является Кровососом Второго Поколения (Санчо), чьи силы запечатаны ботинками Росинант.', 'https://i.postimg.cc/1X6JFDJP/IMG-9304.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/1X6JFDJP/IMG-9304.webp"></div>
+                            <div class="char-info"><h4>Дон Кихот</h4><span>Грешник №03</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Рёшу', 'Грешник №04', 'Беспощадная мечница, считающая убийства высшей формой искусства. Говорит аббревиатурами и постоянно курит.', 'https://i.postimg.cc/KjLJTtJh/IMG-9305.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/KjLJTtJh/IMG-9305.webp"></div>
+                            <div class="char-info"><h4>Рёшу</h4><span>Грешник №04</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Мерсо', 'Грешник №05', 'Абсолютно бесстрастный исполнитель. Делает исключительно то, что ему прикажут, и никогда не высказывает собственного мнения.', 'https://i.postimg.cc/D0sBG1BV/IMG-9306.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/D0sBG1BV/IMG-9306.webp"></div>
+                            <div class="char-info"><h4>Мерсо</h4><span>Грешник №05</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Хун Лу', 'Грешник №06', 'Беспечный выходец из невероятно богатого Клана. Сохраняет веселый настрой даже посреди кровавой бойни, раздражая остальных своей наивностью.', 'https://i.postimg.cc/wMJ0NDFC/IMG-9307.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/wMJ0NDFC/IMG-9307.webp"></div>
+                            <div class="char-info"><h4>Хун Лу</h4><span>Грешник №06</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Хитклифф', 'Грешник №07', 'Жестокий и грубый боец, предпочитающий решать проблемы своей дубиной. Его единственным светлым чувством была любовь к покойной Кэтрин из Грозового Перевала.', 'https://i.postimg.cc/qqnjK2QS/IMG-9308.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/qqnjK2QS/IMG-9308.webp"></div>
+                            <div class="char-info"><h4>Хитклифф</h4><span>Грешник №07</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Измаил', 'Грешник №08', 'Прагматичная морячка, выжившая в кошмарах Великого Озера. Изначально была одержима местью Капитану Ахаб за гибель экипажа.', 'https://i.postimg.cc/j2NZfyvG/IMG-9309.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/j2NZfyvG/IMG-9309.webp"></div>
+                            <div class="char-info"><h4>Измаил</h4><span>Грешник №08</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Родион', 'Грешник №09', 'Азартная и общительная женщина из Района 9. Скрывает за улыбкой гнетущее чувство вины за то, что ее гордыня привела к гибели соседей от рук Среднего Пальца.', 'https://i.postimg.cc/x8HtmLg7/IMG-9310.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/x8HtmLg7/IMG-9310.webp"></div>
+                            <div class="char-info"><h4>Родион</h4><span>Грешник №09</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Синклер', 'Грешник №11', 'Робкий и неуверенный в себе юноша. Его семья была вырезана инквизицией N-Корпорации из-за того, что он доверился Кромер.', 'https://i.postimg.cc/nr70mqTN/IMG-9311.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/nr70mqTN/IMG-9311.webp"></div>
+                            <div class="char-info"><h4>Синклер</h4><span>Грешник №11</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Отис', 'Грешник №12', 'Бывший командир с колоссальным военным опытом. Постоянно льстит Данте и превозносит его как гениального Менеджера.', 'https://i.postimg.cc/4ytBcpw0/IMG-9312.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/4ytBcpw0/IMG-9312.webp"></div>
+                            <div class="char-info"><h4>Отис</h4><span>Грешник №12</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Грегор', 'Грешник №13', 'Ветеран Войны Дыма. Его правая рука была генетически модифицирована учеными старой G-Корпорации под клешню насекомого.', 'https://i.postimg.cc/mkM8978b/IMG-9313.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/mkM8978b/IMG-9313.webp"></div>
+                            <div class="char-info"><h4>Грегор</h4><span>Грешник №13</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="antagonists" class="tab-content">
+                    <h3 style="margin-bottom: 15px; color: #fff;">ОБЪЕКТЫ НАБЛЮДЕНИЯ: УГРОЗЫ И ИСКАЖЕНИЯ</h3>
+                    <div class="archive-grid">
+                        <div class="char-card" onclick="showCharacter('Кромер', 'Инквизитор N-Corp', 'Лидер фанатиков «Гвоздь и Молот». Одержима искоренением протезов и аугментаций. Исказилась в многорукое чудовище.', 'https://i.postimg.cc/NGrNZwYX/IMG-9268.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/NGrNZwYX/IMG-9268.jpg"></div>
+                            <div class="char-info"><h4>Кромер</h4><span>Инквизитор</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Соня', 'Лидер Юродивых', 'Глава подпольной организации, стремящейся изменить общество через перераспределение благ. Бывший товарищ Родион.', 'https://i.postimg.cc/h47CNqgQ/IMG-9271.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/h47CNqgQ/IMG-9271.jpg"></div>
+                            <div class="char-info"><h4>Соня</h4><span>Юродивые</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Донранг', 'Директор K-Corp крыла', 'Бывший член Лиги Девяти. Ради амбиций поглотил энергию Сингулярности K-Corp и исказился в «Смотрителя Фермы».', 'https://i.postimg.cc/XqFQ59QN/IMG-9274.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/XqFQ59QN/IMG-9274.jpg"></div>
+                            <div class="char-info"><h4>Донранг</h4><span>K-Corp</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Ахаб', 'Капитан Пекода', 'Одержима слепой местью Бледному Киту. Манипулирует матросами, заставляя их верить, что они — лишь инструмент её воли.', 'https://i.postimg.cc/8kryxVDr/IMG-9269.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/8kryxVDr/IMG-9269.jpg"></div>
+                            <div class="char-info"><h4>Ахаб</h4><span>Капитан</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Король-Ольха', 'Дикая Охота', 'Альтернативный Хитклифф из другого мира, полностью поглощенный горем по Кэтрин. Жаждет убить нашего Хитклиффа.', 'https://i.postimg.cc/kMtjLd96/IMG-9272.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/kMtjLd96/IMG-9272.jpg"></div>
+                            <div class="char-info"><h4>Король-Ольха</h4><span>Искажение</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Дон Кихот (Предок)', 'Кровосос Первого Поколения', 'Истинная сущность Дон Кихота. Прародитель Санчо. Желал доказать, что мечта о мирном сосуществовании с людьми невозможна.', 'https://i.postimg.cc/gjRNh34t/IMG-9370.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/gjRNh34t/IMG-9370.jpg"></div>
+                            <div class="char-info"><h4>Прародитель</h4><span>Кровосос</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Jia Mu', 'Глава Семьи', 'Глава Клана Хун, женщина, готовая на любые жертвы ради сохранения семейных традиций и власти.', 'https://i.postimg.cc/Vsb72c1S/IMG-9273.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/Vsb72c1S/IMG-9273.jpg"></div>
+                            <div class="char-info"><h4>Jia Mu</h4><span>Семья</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Риен', 'Высший Конкурент', 'Мастер тактических маневров из враждебной фракции. Способен просчитывать ходы Лимбуса наперед.', 'https://i.postimg.cc/hvxpmVpP/IMG-9270.jpg')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/hvxpmVpP/IMG-9270.jpg"></div>
+                            <div class="char-info"><h4>Риен</h4><span>Конкуренты</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Рикардо', 'Большой Брат Среднего Пальца', 'Один из лидеров Синдиката «Средний Палец». Обладает сокрушительной физической силой и фанатичной приверженностью правилам.', 'https://i.postimg.cc/ZK8m9RnN/IMG-9458.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/ZK8m9RnN/IMG-9458.webp"></div>
+                            <div class="char-info"><h4>Рикардо</h4><span>Синдикат</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Мэтиас', 'Большой Брат Среднего Пальца', 'Опасный член Синдиката «Средний Палец». Как и Рикардо, он является «Большим Братом», обладающим огромной силой и строгим следованием кодексу Семьи.', 'https://i.postimg.cc/YSkh4ZtM/IMG-9460.png')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/YSkh4ZtM/IMG-9460.png"></div>
+                            <div class="char-info"><h4>Мэтиас</h4><span>Синдикат</span></div>
+                        </div>
+                        <div class="char-card" onclick="showCharacter('Герман', 'Директор N-Corp крыла', 'Мать Грегора и лидер группы, охотящейся за Золотыми Сучьями для создания «совершенного» мира. Главный конкурент Лимбуса.', 'https://i.postimg.cc/mgTs7s1F/IMG-9459.webp')">
+                            <div class="char-img-container"><img src="https://i.postimg.cc/mgTs7s1F/IMG-9459.webp"></div>
+                            <div class="char-info"><h4>Герман</h4><span>N-Corp</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="story-log" class="tab-content">
+                    <h3 style="margin-bottom: 15px; color: #fff;">АРХИВ ОПЕРАЦИЙ LIMBUS COMPANY (КАНТО I - IX)</h3>
+                    
+                    <div class="story-section">
+                        <h3>Канто I: Изгой (The Outcast)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Операция LCB в Районе 4 была направлена на извлечение Золотого Сучка из руин разрушенного филиала Lobotomy Corporation. Проводником выступила Юрий, бывшая сотрудница комплекса. Продвижение осложнялось присутствием мутировавших солдат старой G-Корпорации (ветеранов Войны Дыма), чья природа вызвала сильный психологический резонанс у Грегора, заставив отряд проходить через фрагменты его травматичных воспоминаний. Менеджеру Данте пришлось впервые применить способность отматывать время, воскрешая убитых Грешников ценой адской боли.</p>
+                        <p>Критический инцидент произошел на нижнем уровне: при попытке подойти к артефакту проводник Юрий была заживо поглощена аномалией, которая трансформировалась в монстра «Ложное Яблоко» с её отрубленной головой вместо сердцевины. Несмотря на тяжелое подавление твари, победа оказалась бессмысленной.</p>
+                        <p>Золотой Сучок был перехвачен конкурирующей группой во главе с Германом. Первая миссия LCB признана провальной: артефакт утерян, проводник погиб.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто II: Нелюбящая (The Unloving)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>След Сучка привел автобус Мефистофель в Район 9 (подконтрольный J-Корпорации), в элитное подпольное казино «Пайса». Внутри комплекса отряд пересекся с организацией «Юродивые» под предводительством Сони — идеолога и старого товарища Родион по её жизни в трущобах.</p>
+                        <p>Влияние Золотого Сучка исказило среду казино, превратив нижние этажи в ледяную пустошь, отражающую травму Родион. Выяснилось, что в прошлом её эгоистичное убийство сборщика налогов привело к карательному рейду Синдиката «Средний Палец», который жестоко вырезал всех её соседей. Преодолев ментальное давление со стороны Сони, отряд спустился к ядру искажения.</p>
+                        <p>Подавив местную аномалию (Бабу Ягу), Лимбус впервые успешно захватил Золотой Сучок. Родион сохранила боеспособность, спрятав свои эмоции за привычной маской азарта.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто III: Недосягаемое (The Unconfronting)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Прибытие в город Кальв, расположенный в Районе 11 (K-Корпорация), стало возвращением в кошмар для Синклера. Город оказался полностью захвачен радикальным крылом Инквизиции «Гвоздь и Молот» N-Корпорации, возглавляемым фанатичной Кромер.</p>
+                        <p>Именно Кромер манипулировала Синклером в детстве, что привело к гибели его семьи. Продвигаясь к подземелью, отряд нес катастрофические потери. В финальном зале Кромер вошла в резонанс с Сучком и исказилась в гротескное многорукое божество.</p>
+                        <p>Ситуация была критической, пока внезапное вмешательство загадочного наблюдателя по имени Демиан не изменило баланс сил. Синклер смог преодолеть свой страх и нанести завершающий удар. Сучок извлечен, город Кальв зачищен.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто IV: Неизменное (The Unchanging)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Операция по извлечению в лабораториях K-Корпорации (Район 11). Атаку возглавила Донбэк — бывшая коллега И Санга по распавшейся Лиге Девяти Литераторов.</p>
+                        <p>Однако главным предателем оказался Донранг — исполнительный директор K-Corp и еще один бывший друг И Санга. Ради власти и признания он поглотил энергию Сучка, исказившись в колоссального золотого быка — «Смотрителя Фермы».</p>
+                        <p>И Санг, преодолев апатию к своему прошлому, активировал истинную мощь своего E.G.O. Идеально рассчитанным ударом он оборвал жизнь Донранга. Сучок был успешно захвачен, а наследие Лиги Литераторов навсегда похоронено в руинах корпорации.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто V: Определяющее Зло (The Evil Defining)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Экспедиция в смертельно опасные воды Великого Озера (Район 21, U-Корпорация). Мефистофель был проглочен титаническим Бледным Китом. Внутри его гнющего чрева Измаил столкнулась лицом к лицу с безумной Капитаншей Ахаб.</p>
+                        <p>Ахаб использовала Золотой Сучок, чтобы установить абсолютную ментальную диктатуру над командой. Грешники с боем пробивались через желудок монстра к сердцу.</p>
+                        <p>В кульминационный момент Измаил нанесла удар гарпуном не по Ахаб, а по Сучку, питавшему Кита. Это разрушило власть Ахаб над командой и заставило монстра изрыгнуть автобус Лимбуса обратно в Озеро.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто VI: Разбивающее Сердце (The Heartbreaking)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Автобус прибыл в Район 20 (T-Корпорация) к ветхому поместью Грозовой Перевал. Миссия совпала с похоронами Кэтрин — единственной любви Хитклиффа.</p>
+                        <p>Манипуляции с Технологией Зеркал породили «Дикую Охоту» во главе с Королем-Ольхой (Erlking) — версией Хитклиффа из альтернативного мира.</p>
+                        <p>Чтобы остановить бесконечный цикл боли, потребовалось радикальное концептуальное вмешательство — полное стирание личности Кэтрин из самой структуры вселенной. Сучок был получен, но Хитклифф остался с зияющей пустотой в памяти и сердце.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто VII: Конец Мечты (The Dream Ending)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Контракт с P-Корпорацией (Район 16). Задачей стала зачистка парка аттракционов «Ламанчаленд». Раскрылась шокирующая тайна: наша Дон Кихот — это Санчо, Кровосос Второго Поколения.</p>
+                        <p>Парк превратился в арену Кровавого Карнавала. Истинный Дон Кихот (Предок), уставший от многовековых страданий, желал полностью уничтожить свое наследие.</p>
+                        <p>После тяжелейшей схватки Санчо приняла решение вновь надеть свои ботинки, добровольно запечатав свою силу и вернув личность «Дон Кихот». Инцидент в Ламанчаленде был завершен.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто VIII: Пленник Прошлого (The Bound by Blood)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Операция в Районе 10, родовом поместье Клана Хун. Группа столкнулась с «Золотым Садом» — искаженным пространством, созданным Jia Mu на основе семейных реликвий. Хун Лу был вынужден противостоять своей семье.</p>
+                        <p>Критический инцидент: Jia Mu использовала резонанс Сучка, чтобы запереть Грешников в бесконечном цикле «идеального сна». Хун Лу впервые проявил истинную жестокость, чтобы разорвать семейные узы.</p>
+                        <p>Итог: Золотой Сучок извлечен. Усадьба Клана Хун частично разрушена.</p>
+                    </div>
+
+                    <div class="story-section">
+                        <h3>Канто IX: Мазок Крови (The Hell-Bound Brush)</h3>
+                        <span class="report-header">Менеджерский отчет // Доступ: Уровень 4 [ДАНТЕ]</span>
+                        <p>Миссия в Районе 2 (территория Синдиката «Большой Палец»). Группа LCB оказалась втянута в масштабное искажение, созданное бывшим наставником Рёшу — Риеном.</p>
+                        <p>Антагонистом выступил Риен, стремящийся завершить свою «Картину Ада», используя кровь жителей района и энергию Золотого Сучка. Рёшу продемонстрировала пугающий уровень синхронизации со своим E.G.O.</p>
+                        <p>Итог: Сучок извлечен. Рёшу подтвердила свою преданность Лимбусу, хотя её методы остаются крайне деструктивными.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="charModal">
+        <div class="modal-window">
+            <div class="modal-img"><img id="modalTargetImg" src=""></div>
+            <div class="modal-details">
+                <h3 id="modalTargetName">Имя</h3>
+                <div class="subtitle" id="modalTargetStatus">Статус</div>
+                <p id="modalTargetDesc">Описание...</p>
+                <button class="btn-close-modal" onclick="closeModal()">Закрыть файл</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function startSystemLoading() {
+        var inputId = document.getElementById('managerId').value || "LC-DANTE-7777";
+        document.getElementById('loginBox').style.display = 'none';
+        var loader = document.getElementById('terminalLoader');
+        loader.style.display = 'block';
+
+        var logs = [
+            "> Инициализация LCB_MOBILE_OS...",
+            "> Адаптация под шасси дисплея: OK",
+            "> Синхронизация с часами Данте...",
+            "> Проверка Пропуска: ИДЕНТИФИЦИРОВАН",
+            "> Загрузка базы Грешников и файлов Угроз...",
+            "> ИНТЕГРАЦИЯ АРХИВОВ (КАНТО I - IX): ЗАВЕРШЕНА",
+            "> Подготовка аудиопотока Mili... OK",
+            "> Система готова к работе."
+        ];
+
+        var i = 0;
+        function printLog() {
+            if (i < logs.length) {
+                loader.innerHTML += logs[i] + "<br>";
+                loader.scrollTop = loader.scrollHeight;
+                i++;
+                setTimeout(printLog, 150);
+            } else {
+                setTimeout(function() {
+                    document.getElementById('screenLogin').style.display = 'none';
+                    document.getElementById('screenMain').style.display = 'flex';
+                    document.getElementById('displayId').innerText = inputId;
+                    
+                    var audio = document.getElementById('bgMusic');
+                    audio.volume = 0.5;
+                }, 300);
+            }
+        }
+        printLog();
+    }
+
+    function toggleMusic() {
+        var audio = document.getElementById('bgMusic');
+        var statusText = document.getElementById('musicStatus');
+        
+        if (audio.paused) {
+            audio.play().then(() => {
+                statusText.innerText = "СТРИМ_АКТИВЕН";
+                statusText.style.color = "#4ade80";
+            }).catch(err => {
+                console.log("Ошибка воспроизведения:", err);
+                statusText.innerText = "ФАЙЛ НЕ НАЙДЕН";
+                statusText.style.color = "#bf1919";
+                alert("ВНИМАНИЕ: Для воспроизведения музыки файл '01. In Hell We Live, Lament.mp3' должен находиться в одной папке с этим HTML-документом.");
+            });
+        } else {
+            audio.pause();
+            statusText.innerText = "НА ПАУЗЕ";
+            statusText.style.color = "#6b7280";
+        }
+    }
+
+    function switchTab(evt, tabName) {
+        var i, tabContent, menuBtns;
+        tabContent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabContent.length; i++) { tabContent[i].classList.remove("active"); }
+        menuBtns = document.getElementsByClassName("menu-btn");
+        for (i = 0; i < menuBtns.length; i++) { menuBtns[i].classList.remove("active"); }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    function showCharacter(name, status, desc, imgUrl) {
+        document.getElementById('modalTargetName').innerText = name;
+        document.getElementById('modalTargetStatus').innerText = status;
+        document.getElementById('modalTargetDesc').innerText = desc;
+        document.getElementById('modalTargetImg').src = imgUrl;
+        document.getElementById('charModal').style.display = 'flex';
+    }
+
+    document.getElementById('charModal').addEventListener('click', function(e) {
+        if(e.target === this) {
+            closeModal();
+        }
+    });
+
+    function closeModal() {
+        document.getElementById('charModal').style.display = 'none';
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('КПК готов к автономной работе.'))
+            .catch((err) => console.log('Ошибка PWA:', err));
+    }
+</script>
+
+</body>
+</html>
