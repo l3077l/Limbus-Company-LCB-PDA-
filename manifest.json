@@ -1,24 +1,29 @@
 {
   "short_name": "LCB PDA",
   "name": "Limbus Company B-Side PDA",
+  "description": "Персональный КПК сотрудника Limbus Company",
   "icons": [
     {
-      "src": "https://i.postimg.cc/d3d4CG4J/IMG-9302.webp",
-      "type": "image/webp",
-      "sizes": "192x192"
+      "src": "https://i.postimg.cc/Sxmk9tZj/IMG-9223.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://i.postimg.cc/d3d4CG4J/IMG-9302.webp",
-      "type": "image/webp",
-      "sizes": "512x512"
+      "src": "https://i.postimg.cc/Sxmk9tZj/IMG-9223.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ],
   "start_url": "index.html",
   "background_color": "#060608",
   "display": "standalone",
   "theme_color": "#bf1919",
-  "orientation": "landscape"
+  "orientation": "landscape",
+  "scope": "/"
 }
+
 
 
 
