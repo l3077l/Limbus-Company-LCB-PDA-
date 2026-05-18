@@ -1,54 +1,31 @@
-const playlist = [
-    "01. In Hell We Live, Lament.mp3",
-    "04. Dongbaek.mp3",
-    "01. Dungeon Theme.mp3"
+const CACHE_NAME = 'lcb-pda-v1';
+const ASSETS = [
+  'index.html',
+  'manifest.json',
+  '01. Dungeon Theme.mp3',
+  '01. In Hell We Live, Lament.mp3',
+  '04. Dongbaek.mp3'
 ];
-let currentTrackIndex = 0;
-const audio = document.getElementById('bgMusic');
-const statusText = document.getElementById('musicStatus');
-const playBtn = document.getElementById('playBtn');
 
-function loadTrack(index) {
-    audio.src = playlist[index];
-    audio.play().then(() => updateUI(true)).catch(showError);
-}
+// Установка Service Worker
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
+  );
+});
 
-function toggleMusic() {
-    if (!audio.src || audio.src === "") {
-        loadTrack(currentTrackIndex);
-    } else if (audio.paused) {
-        audio.play().then(() => updateUI(true)).catch(showError);
-    } else {
-        audio.pause();
-        updateUI(false);
-    }
-}
+// Активация
+self.addEventListener('activate', (event) => {
+  console.log('SW activated');
+});
 
-function nextTrack() {
-    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-    loadTrack(currentTrackIndex);
-}
-
-function prevTrack() {
-    currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
-    loadTrack(currentTrackIndex);
-}
-
-function updateUI(isPlaying) {
-    if (isPlaying) {
-        statusText.innerText = "TRACK " + (currentTrackIndex + 1);
-        statusText.style.color = "#4ade80";
-        playBtn.innerText = "PAUSE";
-    } else {
-        statusText.innerText = "НА ПАУЗЕ";
-        statusText.style.color = "#6b7280";
-        playBtn.innerText = "PLAY";
-    }
-}
-
-function showError() {
-    statusText.innerText = "ОШИБКА";
-    statusText.style.color = "#bf1919";
-}
-
-audio.onended = nextTrack; // Автопереключение
+// Стратегия: Сначала сеть, если нет — берем из кеша
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
+  );
+});
