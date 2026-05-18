@@ -1,28 +1,22 @@
 {
   "short_name": "LCB PDA",
-  "name": "Limbus Company B-Side PDA",
-  "description": "Персональный КПК сотрудника Limbus Company",
+  "name": "Limbus Company Archive",
   "icons": [
     {
-      "src": "https://i.postimg.cc/Sxmk9tZj/IMG-9223.jpg",
-      "type": "image/jpeg",
-      "sizes": "192x192",
-      "purpose": "any maskable"
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
     },
     {
-      "src": "https://i.postimg.cc/Sxmk9tZj/IMG-9223.jpg",
-      "type": "image/jpeg",
-      "sizes": "512x512",
-      "purpose": "any"
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "background_color": "#060608",
   "display": "standalone",
+  "scope": "./",
   "theme_color": "#bf1919",
-  "orientation": "landscape",
-  "scope": "/"
+  "description": "Архив данных Limbus Company: Канто I-IX"
 }
-
-
-
