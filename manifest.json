@@ -2,7 +2,7 @@
   "short_name": "LCB PDA",
   "name": "Limbus Company Archive",
   "description": "Архив данных Limbus Company",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#060608",
   "theme_color": "#bf1919",
@@ -10,10 +10,16 @@
   "scope": "./",
   "icons": [
     {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
       "src": "icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
