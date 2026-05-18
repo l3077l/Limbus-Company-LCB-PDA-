@@ -1,10 +1,15 @@
-const CACHE_NAME = 'lcb-pda-v3';
+const CACHE_NAME = 'lcb-pda-v5'; // Увеличил версию
 const ASSETS = [
-  'index.html',
-  'manifest.json',
-  '01. In Hell We Live, Lament.mp3',
-  '01. Dungeon Theme.mp3',
-  '04. Dongbaek.mp3'
+  './',
+  './index.html',
+  './manifest.json',
+  // Музыка
+  './01. In Hell We Live, Lament.mp3',
+  './01. Dungeon Theme.mp3',
+  './04. Dongbaek.mp3',
+  // Иконки (если есть)
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -15,6 +20,7 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((res) => res || fetch(event.request))
+    caches.match(event.request).then((response) => response || fetch(event.request))
   );
 });
+
