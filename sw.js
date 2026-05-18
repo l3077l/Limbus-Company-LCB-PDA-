@@ -1,10 +1,13 @@
-const CACHE_NAME = 'lcb-pda-v1';
+const CACHE_NAME = 'lcb-pda-v2'; // Увеличили версию
 const ASSETS = [
+  './',
   'index.html',
-  'manifest.json'
+  'manifest.json',
+  '01. In Hell We Live, Lament.mp3',
+  '04. Dongbaek.mp3',
+  '01. Dungeon Theme.mp3'
 ];
 
-// Установка воркера и кэширование основы
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -13,12 +16,16 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Активация
 self.addEventListener('activate', (e) => {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    })
+  );
 });
 
-// Перехват запросов для работы оффлайн
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
@@ -26,4 +33,3 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
-
