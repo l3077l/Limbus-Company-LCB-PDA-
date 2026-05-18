@@ -138,8 +138,14 @@
         .menu-btn:hover, .menu-btn.active { background-color: #1a1a24; border-color: var(--lc-red); color: #fff; }
 
         .pda-content { flex-grow: 1; padding: 20px 30px; overflow-y: auto; background-color: #0f0f13; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
         .archive-grid { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
 
         .char-card { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 6px; overflow: hidden; width: 150px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
@@ -602,15 +608,24 @@
     }
 
     // 3. ВКЛАДКИ И ОКНА
-    function switchTab(evt, tabName) {
-        var i, tabContent, menuBtns;
-        tabContent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabContent.length; i++) { tabContent[i].classList.remove("active"); }
-        menuBtns = document.getElementsByClassName("menu-btn");
-        for (i = 0; i < menuBtns.length; i++) { menuBtns[i].classList.remove("active"); }
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
+function switchTab(evt, tabName) {
+    var i, tabContent, menuBtns;
+    
+    tabContent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = "none";
+        tabContent[i].classList.remove("active");
     }
+    
+    menuBtns = document.getElementsByClassName("menu-btn");
+    for (i = 0; i < menuBtns.length; i++) {
+        menuBtns[i].classList.remove("active");
+    }
+    
+    document.getElementById(tabName).style.display = "block";
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
 
     function showCharacter(name, status, desc, imgUrl) {
         document.getElementById('modalTargetName').innerText = name;
@@ -619,9 +634,7 @@
         document.getElementById('modalTargetImg').src = imgUrl;
         document.getElementById('charModal').style.display = 'flex';
     }
-
     function closeModal() { document.getElementById('charModal').style.display = 'none'; }
-
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js');
     }
