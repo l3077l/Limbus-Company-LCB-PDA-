@@ -226,13 +226,17 @@
             </div>
 
             <div class="header-right-player">
-                <div style="display: flex; flex-direction: column; gap: 2px; text-align: right; margin-right: 5px;">
-                    <span style="font-size: 10px; color: var(--lc-amber); font-weight: bold;">MILI STREAM:</span>
-                    <span id="musicStatus" style="font-size: 9px; color: var(--text-muted);">ВЫКЛЮЧЕН</span>
-                </div>
-                <button class="audio-ctrl-btn" onclick="toggleMusic()">PLAY / PAUSE</button>
-            </div>
-        </div>
+    <div style="display: flex; flex-direction: column; gap: 2px; text-align: right; margin-right: 5px;">
+        <span style="font-size: 10px; color: var(--lc-amber); font-weight: bold;">MILI STREAM:</span>
+        <span id="musicStatus" style="font-size: 9px; color: var(--text-muted);">ВЫКЛЮЧЕН</span>
+    </div>
+    <div style="display: flex; gap: 5px;">
+        <button class="audio-ctrl-btn" onclick="prevTrack()">PREV</button>
+        <button class="audio-ctrl-btn" id="playBtn" onclick="toggleMusic()">PLAY</button>
+        <button class="audio-ctrl-btn" onclick="nextTrack()">NEXT</button>
+    </div>
+</div>
+
 
         <div class="pda-body">
             <div class="pda-sidebar">
