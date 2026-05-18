@@ -1,16 +1,25 @@
 {
   "short_name": "LCB PDA",
   "name": "Limbus Company Archive",
+  "description": "Архив данных Limbus Company: Канто I-IX",
   "icons": [
     {
       "src": "icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ],
   "start_url": "./index.html",
@@ -18,5 +27,5 @@
   "display": "standalone",
   "scope": "./",
   "theme_color": "#bf1919",
-  "description": "Архив данных Limbus Company: Канто I-IX"
+  "orientation": "landscape"
 }
