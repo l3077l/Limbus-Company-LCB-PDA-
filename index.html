@@ -217,34 +217,30 @@
         </div>
         <div class="terminal-loader" id="terminalLoader"></div>
     </div>
-
-    <div class="screen-main" id="screenMain">
-        <div class="pda-header">
-            <div class="header-left">
-                <div class="user-info">Сотрудник: <span id="displayId">DANTE</span> [ОТДЕЛ: МЕНЕДЖМЕНТ]</div>
-                <div style="color: var(--text-muted); font-size: 10px;">LCB_OS_V4.17 // СИНХРОНИЗАЦИЯ СТАБИЛЬНА</div>
+ <div class="screen-main" id="screenMain">
+    <div class="pda-header">
+        <div class="header-left">
+            <div class="user-info">Сотрудник: <span id="displayId">DANTE</span></div>
+            <div style="color: var(--text-muted); font-size: 10px;">LCB_OS_V4.17 // СИНХРОНИЗАЦИЯ</div>
+        </div>
+        <div class="header-right-player">
+            <div style="display: flex; flex-direction: column; gap: 2px; text-align: right; margin-right: 5px;">
+                <span style="font-size: 10px; color: var(--lc-amber); font-weight: bold;">MILI STREAM:</span>
+                <span id="musicStatus" style="font-size: 9px; color: var(--text-muted);">ВЫКЛЮЧЕН</span>
             </div>
-
-            <div class="header-right-player">
-    <div style="display: flex; flex-direction: column; gap: 2px; text-align: right; margin-right: 5px;">
-        <span style="font-size: 10px; color: var(--lc-amber); font-weight: bold;">MILI STREAM:</span>
-        <span id="musicStatus" style="font-size: 9px; color: var(--text-muted);">ВЫКЛЮЧЕН</span>
+            <div style="display: flex; gap: 5px;">
+                <button class="audio-ctrl-btn" onclick="prevTrack()">PREV</button>
+                <button class="audio-ctrl-btn" id="playBtn" onclick="toggleMusic()">PLAY</button>
+                <button class="audio-ctrl-btn" onclick="nextTrack()">NEXT</button>
+            </div>
+        </div>
     </div>
-    <div style="display: flex; gap: 5px;">
-        <button class="audio-ctrl-btn" onclick="prevTrack()">PREV</button>
-        <button class="audio-ctrl-btn" id="playBtn" onclick="toggleMusic()">PLAY</button>
-        <button class="audio-ctrl-btn" onclick="nextTrack()">NEXT</button>
-    </div>
-</div>
-
-
-        <div class="pda-body">
-            <div class="pda-sidebar">
+    <div class="pda-body">
+        <div class="pda-sidebar">
                 <button class="menu-btn active" onclick="switchTab(event, 'archive')">Base Грешников</button>
                 <button class="menu-btn" onclick="switchTab(event, 'antagonists')">Угрозы (Антагонисты)</button>
                 <button class="menu-btn" onclick="switchTab(event, 'story-log')">Логи Сюжета (Канто I-IX)</button>
             </div>
-
             <div class="pda-content">
                 <div id="archive" class="tab-content active">
                     <h3 style="margin-bottom: 15px; color: #fff;">ЛИЧНЫЕ ДЕЛА ГРЕШНИКОВ</h3>
