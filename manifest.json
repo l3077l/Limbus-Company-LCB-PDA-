@@ -1,20 +1,23 @@
 {
-  "name": "Limbus Company LCB PDA",
   "short_name": "LCB PDA",
-  "description": "Карманный Персональный Компьютер сотрудника Limbus Company",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#060608",
-  "theme_color": "#bf1919",
-  "orientation": "landscape",
+  "name": "Limbus Company B-Side PDA",
   "icons": [
     {
       "src": "https://i.postimg.cc/d3d4CG4J/IMG-9302.webp",
-      "sizes": "512x512",
       "type": "image/webp",
-      "purpose": "any maskable"
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://i.postimg.cc/d3d4CG4J/IMG-9302.webp",
+      "type": "image/webp",
+      "sizes": "512x512"
     }
-  ]
+  ],
+  "start_url": "index.html",
+  "background_color": "#060608",
+  "display": "standalone",
+  "theme_color": "#bf1919",
+  "orientation": "landscape"
 }
 
 
