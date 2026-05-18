@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lcb-pda-v6'; // Увеличили версию до v6
+const CACHE_NAME = 'lcb-pda-v7'; // Увеличили версию до v6
 const ASSETS = [
   './',
   './index.html',
