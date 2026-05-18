@@ -440,6 +440,56 @@
 </div>
 
 <script>
+    // 1. ПЛЕЕР И ПЛЕЙЛИСТ
+    const playlist = [
+        "01. In Hell We Live, Lament.mp3",
+        "01. Dungeon Theme.mp3",
+        "04. Dongbaek.mp3"
+    ];
+    let currentTrackIndex = 0;
+    const audio = document.getElementById('bgMusic');
+    const statusText = document.getElementById('musicStatus');
+    const playBtn = document.getElementById('playBtn');
+
+    function updateTrack() {
+        audio.src = playlist[currentTrackIndex];
+        audio.load();
+        if (statusText.innerText === "СТРИМ_АКТИВЕН") {
+            audio.play().catch(e => console.log("Ошибка: ", e));
+        }
+    }
+
+    function toggleMusic() {
+        if (audio.paused) {
+            audio.play().then(() => {
+                statusText.innerText = "СТРИМ_АКТИВЕН";
+                statusText.style.color = "#4ade80";
+                playBtn.innerText = "PAUSE";
+            }).catch(err => {
+                statusText.innerText = "ОШИБКА";
+                alert("Сначала нажмите на экран, потом PLAY.");
+            });
+        } else {
+            audio.pause();
+            statusText.innerText = "НА ПАУЗЕ";
+            statusText.style.color = "#6b7280";
+            playBtn.innerText = "PLAY";
+        }
+    }
+
+    function nextTrack() {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        updateTrack();
+    }
+
+    function prevTrack() {
+        currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+        updateTrack();
+    }
+
+    audio.addEventListener('ended', nextTrack);
+
+    // 2. ЗАГРУЗКА СИСТЕМЫ
     function startSystemLoading() {
         var inputId = document.getElementById('managerId').value || "LC-DANTE-7777";
         document.getElementById('loginBox').style.display = 'none';
@@ -448,13 +498,9 @@
 
         var logs = [
             "> Инициализация LCB_MOBILE_OS...",
-            "> Адаптация под шасси дисплея: OK",
-            "> Синхронизация с часами Данте...",
-            "> Проверка Пропуска: ИДЕНТИФИЦИРОВАН",
-            "> Загрузка базы Грешников и файлов Угроз...",
-            "> ИНТЕГРАЦИЯ АРХИВОВ (КАНТО I - IX): ЗАВЕРШЕНА",
-            "> Подготовка аудиопотока Mili... OK",
-            "> Система готова к работе."
+            "> Проверка файлов системы... OK",
+            "> Загрузка плейлиста (3 трека)... OK",
+            "> Синхронизация с Данте... ГОТОВО"
         ];
 
         var i = 0;
@@ -465,40 +511,18 @@
                 i++;
                 setTimeout(printLog, 150);
             } else {
-                setTimeout(function() {
+                setTimeout(() => {
                     document.getElementById('screenLogin').style.display = 'none';
                     document.getElementById('screenMain').style.display = 'flex';
                     document.getElementById('displayId').innerText = inputId;
-                    
-                    var audio = document.getElementById('bgMusic');
-                    audio.volume = 0.5;
+                    audio.src = playlist[currentTrackIndex];
                 }, 300);
             }
         }
         printLog();
     }
 
-    function toggleMusic() {
-        var audio = document.getElementById('bgMusic');
-        var statusText = document.getElementById('musicStatus');
-        
-        if (audio.paused) {
-            audio.play().then(() => {
-                statusText.innerText = "СТРИМ_АКТИВЕН";
-                statusText.style.color = "#4ade80";
-            }).catch(err => {
-                console.log("Ошибка воспроизведения:", err);
-                statusText.innerText = "ФАЙЛ НЕ НАЙДЕН";
-                statusText.style.color = "#bf1919";
-                alert("ВНИМАНИЕ: Для воспроизведения музыки файл '01. In Hell We Live, Lament.mp3' должен находиться в одной папке с этим HTML-документом.");
-            });
-        } else {
-            audio.pause();
-            statusText.innerText = "НА ПАУЗЕ";
-            statusText.style.color = "#6b7280";
-        }
-    }
-
+    // 3. ВКЛАДКИ И ОКНА
     function switchTab(evt, tabName) {
         var i, tabContent, menuBtns;
         tabContent = document.getElementsByClassName("tab-content");
@@ -517,22 +541,11 @@
         document.getElementById('charModal').style.display = 'flex';
     }
 
-    document.getElementById('charModal').addEventListener('click', function(e) {
-        if(e.target === this) {
-            closeModal();
-        }
-    });
-
-    function closeModal() {
-        document.getElementById('charModal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('charModal').style.display = 'none'; }
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('КПК готов к автономной работе.'))
-            .catch((err) => console.log('Ошибка PWA:', err));
+        navigator.serviceWorker.register('sw.js');
     }
 </script>
-
 </body>
 </html>
