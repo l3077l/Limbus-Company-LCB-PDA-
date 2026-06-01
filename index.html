@@ -239,7 +239,7 @@
                 <span id="musicStatus" style="font-size: 9px; color: var(--text-muted);">ВЫКЛЮЧЕН</span>
             </div>
             <div style="display: flex; gap: 5px;">
-                <button class="audio-ctrl-btn" onclick="prevTrack()">PREV</button>
+                <button class="audio-ctrl-btn" onclick="stopTrack()">STOP</button>
                 <button class="audio-ctrl-btn" id="playBtn" onclick="toggleMusic()">PLAY</button>
                 <button class="audio-ctrl-btn" onclick="nextTrack()">NEXT</button>
             </div>
@@ -565,7 +565,7 @@
         updateTrack();
     }
 
-    function prevTrack() {
+    function stopTrack() {
         currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
         updateTrack();
     }
